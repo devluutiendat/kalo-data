@@ -4,7 +4,6 @@ from kalo import get_kalo_data
 from gemini import normalize_with_gemini
 
 CREATORS_FILE = "creators.json"
-CREATORS_DETAIL_DIR = "creator_detail"
 URL = "https://www.kalodata.com/openapi/v1/tiktok/creator/detail"
 
 def get_creator_detail(creator_id: str) -> dict:
@@ -119,4 +118,5 @@ def scrape_all_creator_details():
     print(f"Hoàn tất lấy detail! Thành công: {success} | Thất bại: {failed}")
     print("=" * 50)
 
-get_creator_detail("6705337685530117121")
+if __name__ == "__main__":
+    scrape_all_creator_details()

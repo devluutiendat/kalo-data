@@ -42,7 +42,27 @@ def main():
         return
 
     # --- Bước 2: Thu thập danh sách Creator liên tục cho đến khi hết trang ---
-    scrape_all_creators()
+    # Cho user chọn category ID muốn cào
+    print("\nNhập STT danh mục muốn cào (cách nhau bằng dấu phẩy, ví dụ: 1,3).")
+    print("Để trống và nhấn Enter → lấy tất cả danh mục lá (Là danh mục lá = True):")
+    raw_input = input("Chọn: ").strip()
+
+    if raw_input:
+        try:
+            chosen_indices = [int(x.strip()) - 1 for x in raw_input.split(",")]
+            selected = [results[i] for i in chosen_indices if 0 <= i < len(results)]
+        except (ValueError, IndexError):
+            print("[WARN] Lựa chọn không hợp lệ, lấy tất cả danh mục lá.")
+            selected = [r for r in results if r.get("Là danh mục lá")]
+    else:
+        selected = [r for r in results if r.get("Là danh mục lá")]
+        if not selected:
+            selected = results  # fallback nếu không có danh mục lá nào
+
+    category_ids = [item.get("TikTok Category ID") for item in selected if item.get("TikTok Category ID")]
+
+    print(f"\nĐang cào {len(category_ids)} danh mục: {[item.get('Tên danh mục') for item in selected]}")
+    scrape_all_creators(category_ids)
 
     # --- Bước 3: Lấy chi tiết từng Creator trong creators.json ---
     scrape_all_creator_details()

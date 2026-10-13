@@ -3,17 +3,17 @@ from kalo import get_kalo_data
 URL = "https://www.kalodata.com/openapi/v1/tiktok/creator/rank"
 OUTPUT_FILE = "creators.json"
 
-def get_creator_list(page_number: int = 1) -> int:
+def get_creator_list(page_number: int = 1, category_id: list = []) -> int:
 
     """
     Lấy danh sách creator từ Kalodata theo từng trang.
 
     Args:
         page_number: Số trang cần lấy (bắt đầu từ 1).
+        category_id: Danh sách mã danh mục TikTok Shop (list of int).
 
     Returns:
-        int: Số item mới được thêm vào file trong lần gọi này.
-             Trả về 0 nếu không có item mới hoặc xảy ra lỗi.
+        tuple(int, int): (số item thêm mới, tổng số item nhận được từ API).
     """
     payload = {
         "region": "VN",
@@ -24,8 +24,8 @@ def get_creator_list(page_number: int = 1) -> int:
             "field": "revenue",
             "type": "DESC",
         },
-        "category_ids": [700785],
-        "category_id_list": "700785",
+        "category_ids": category_id,
+        "category_id_list": ",".join(str(c) for c in category_id),
         "page_size": 100,
         "page_number": page_number,
     }
@@ -47,21 +47,25 @@ def get_creator_list(page_number: int = 1) -> int:
     fetched_count = added + skipped
     return added, fetched_count
 
-def scrape_all_creators():
+def scrape_all_creators(category_id: list = []):
     """
     Chạy liên tục get_creator_list() qua từng trang.
     Điều kiện dừng vòng lặp: lần lấy dữ liệu trước đó có data < 100
     (nghĩa là đã tới trang cuối hoặc không còn dữ liệu trả về từ API).
+
+    Args:
+        category_id: Danh sách mã danh mục TikTok Shop (list of int).
     """
     page = 1
     total_added = 0
 
     print("\n" + "=" * 50)
     print("Bắt đầu thu thập danh sách Creator...")
+    print(f"Danh mục: {category_id}")
     print("=" * 50)
 
     while True:
-        added, fetched_count = get_creator_list(page_number=page)
+        added, fetched_count = get_creator_list(page_number=page, category_id=category_id)
         total_added += added
         print(f"[main] Trang {page}: nhận {fetched_count} creator (thêm mới: {added}, tổng mới: {total_added})")
 
@@ -76,4 +80,4 @@ def scrape_all_creators():
     print("=" * 50)
 
 if __name__ == "__main__":
-    scrape_all_creators()
+    scrape_all_creators([700785])
