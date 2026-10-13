@@ -1,6 +1,7 @@
 import json
 import os
 from kalo import get_kalo_data
+from gemini import normalize_with_gemini
 
 CREATORS_FILE = "creators.json"
 CREATORS_DETAIL_DIR = "creator_detail"
@@ -15,8 +16,7 @@ def get_creator_detail(creator_id: str) -> dict:
     Returns:
         dict trả về từ get_kalo_data {"added", "skipped", "result"} hoặc None nếu lỗi.
     """
-    os.makedirs(CREATORS_DETAIL_DIR, exist_ok=True)
-
+    
     payload = {
         "region": "VN",
         "language": "vi-VN",
@@ -24,14 +24,56 @@ def get_creator_detail(creator_id: str) -> dict:
         "creator_id": creator_id,
         "date_range": "last7Day",
     }
-    output_file = os.path.join(CREATORS_DETAIL_DIR, f"{creator_id}.json")
     result = get_kalo_data(
         payload_data=payload,
         url=URL,
-        file=output_file,
+        file="creator_detail.json",
         id_name="creator_id",
     )
+
+    if result and result.get("added", 0) > 0:
+        raw_data = result.get("result", {}).get("data", {})
+        if isinstance(raw_data, dict):
+            zalo = raw_data.get("creator_contact_zalo", "")
+            email = raw_data.get("creator_contact_email", "")
+            bio = raw_data.get("creator_bio", "")
+
+            if (not zalo or not email) and bio:
+                print(f"[gemini] Thiếu contact (zalo='{zalo}', email='{email}'), trích xuất từ bio...")
+                contact = normalize_with_gemini(bio)
+                if contact:
+                    # Cập nhật lại file JSON với thông tin Gemini trích xuất được
+                    _update_creator_contact(
+                        file="creator_detail.json",
+                        creator_id=creator_id,
+                        gemini_zalo=contact.contact_zalo,
+                        gemini_email=contact.contact_email,
+                    )
+
     return result
+
+def _update_creator_contact(file: str, creator_id: str, gemini_zalo: str | None, gemini_email: str | None):
+    """
+    Đọc file JSON, tìm creator theo creator_id,
+    ghi bổ sung giá trị Gemini vào creator_contact_zalo và creator_contact_email
+    nếu field đó đang rỗng.
+    """
+    if not os.path.exists(file):
+        return
+    with open(file, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    for item in data:
+        if item.get("creator_id") == creator_id:
+            if gemini_zalo and not item.get("creator_contact_zalo"):
+                item["creator_contact_zalo"] = gemini_zalo
+                print(f"[gemini] Đã cập nhật creator_contact_zalo: {gemini_zalo}")
+            if gemini_email and not item.get("creator_contact_email"):
+                item["creator_contact_email"] = gemini_email
+                print(f"[gemini] Đã cập nhật creator_contact_email: {gemini_email}")
+            break
+    with open(file, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
 
 def scrape_all_creator_details():
     """
@@ -76,3 +118,5 @@ def scrape_all_creator_details():
     print("\n" + "=" * 50)
     print(f"Hoàn tất lấy detail! Thành công: {success} | Thất bại: {failed}")
     print("=" * 50)
+
+get_creator_detail("6705337685530117121")
