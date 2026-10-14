@@ -1,3 +1,5 @@
+from tiktok_crawl import crawl_tiktok_bio
+import asyncio
 import json
 import os
 from kalo import get_kalo_data
@@ -7,14 +9,6 @@ CREATORS_FILE = "creators.json"
 URL = "https://www.kalodata.com/openapi/v1/tiktok/creator/detail"
 
 def get_creator_detail(creator_id: str) -> dict:
-
-    """
-    Lấy thông tin chi tiết của 1 creator theo creator_id.
-    Lưu vào creator_detail/<creator_id>.json (dedup theo creator_id).
-
-    Returns:
-        dict trả về từ get_kalo_data {"added", "skipped", "result"} hoặc None nếu lỗi.
-    """
     
     payload = {
         "region": "VN",
@@ -29,57 +23,70 @@ def get_creator_detail(creator_id: str) -> dict:
         file="creator_detail.json",
         id_name="creator_id",
     )
-
     if result and result.get("added", 0) > 0:
         raw_data = result.get("result", {}).get("data", {})
         if isinstance(raw_data, dict):
             zalo = raw_data.get("creator_contact_zalo", "")
             email = raw_data.get("creator_contact_email", "")
             bio = raw_data.get("creator_bio", "")
-
-            if (not zalo or not email) and bio:
-                print(f"[gemini] Thiếu contact (zalo='{zalo}', email='{email}'), trích xuất từ bio...")
-                contact = normalize_with_gemini(bio)
-                if contact:
-                    # Cập nhật lại file JSON với thông tin Gemini trích xuất được
-                    _update_creator_contact(
+            if (not zalo or not email):
+                creator_handle = raw_data.get("creator_handle", "")
+                if not bio and creator_handle:
+                    bio = asyncio.run(crawl_tiktok_bio(creator_handle, creator_id))
+                    update_creator_contact(
                         file="creator_detail.json",
                         creator_id=creator_id,
-                        gemini_zalo=contact.contact_zalo,
-                        gemini_email=contact.contact_email,
+                        field_name="creator_bio",
+                        value=bio,
                     )
-
+                contact = normalize_with_gemini(bio)
+                if contact:
+                    update_creator_contact(
+                        file="creator_detail.json",
+                        creator_id=creator_id,
+                        field_name="creator_contact_zalo",
+                        value=contact.contact_zalo,
+                    )
+                    update_creator_contact(
+                        file="creator_detail.json",
+                        creator_id=creator_id,
+                        field_name="creator_contact_email",
+                        value=contact.contact_email,
+                    )
     return result
 
-def _update_creator_contact(file: str, creator_id: str, gemini_zalo: str | None, gemini_email: str | None):
-    """
-    Đọc file JSON, tìm creator theo creator_id,
-    ghi bổ sung giá trị Gemini vào creator_contact_zalo và creator_contact_email
-    nếu field đó đang rỗng.
-    """
+def update_creator_contact(
+    file: str,
+    creator_id: str,
+    field_name: str,
+    value: str
+) -> bool:
     if not os.path.exists(file):
-        return
+        return False
+
     with open(file, "r", encoding="utf-8") as f:
         data = json.load(f)
+
     for item in data:
         if item.get("creator_id") == creator_id:
-            if gemini_zalo and not item.get("creator_contact_zalo"):
-                item["creator_contact_zalo"] = gemini_zalo
-                print(f"[gemini] Đã cập nhật creator_contact_zalo: {gemini_zalo}")
-            if gemini_email and not item.get("creator_contact_email"):
-                item["creator_contact_email"] = gemini_email
-                print(f"[gemini] Đã cập nhật creator_contact_email: {gemini_email}")
-            break
-    with open(file, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+            old_value = item.get(field_name)
+
+            if old_value != value:
+                item[field_name] = value
+                print(
+                    f"[update] {field_name}: "
+                    f"{old_value!r} -> {value!r}"
+                )
+
+                with open(file, "w", encoding="utf-8") as f:
+                    json.dump(data, f, ensure_ascii=False, indent=2)
+
+            return True
+
+    return False
 
 
 def scrape_all_creator_details():
-    """
-    Đọc danh sách creator từ creators.json,
-    lần lượt gọi get_creator_detail() cho từng creator.
-    Bỏ qua những creator đã có file detail (dedup xử lý bên trong get_creator_detail).
-    """
     if not os.path.exists(CREATORS_FILE):
         print(f"[detail] File '{CREATORS_FILE}' chưa tồn tại, bỏ qua bước lấy detail.")
         return
@@ -119,4 +126,4 @@ def scrape_all_creator_details():
     print("=" * 50)
 
 if __name__ == "__main__":
-    scrape_all_creator_details()
+    get_creator_detail("7364801654489285650")

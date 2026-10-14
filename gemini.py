@@ -1,9 +1,9 @@
-from normalize_text import clean_and_normalize_text
 import os
 from google import genai
 from google.genai import types
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
+import time
 
 load_dotenv()
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
@@ -13,11 +13,10 @@ class ContactInfo(BaseModel):
   contact_zalo: str | None = Field(None, description="Số điện thoại")
   contact_email: str | None = Field(None, description="Địa chỉ email")
 
-
 def extract_contact_info(text: str) -> ContactInfo | None:
   """Nhận vào một đoạn text, sử dụng Gemini để phân tích và trả về thông tin liên hệ cấu trúc chuẩn."""
   prompt = f"""
-    Hãy phân tích kỹ đoạn văn bản dưới đây và trích xuất toàn bộ thông tin liên hệ có sẵn.
+    Hãy phân tích kỹ đoạn văn bản dưới đây và trích xuất toàn bộ thông tin liên hệ từ đó.
     Nếu thông tin nào không xuất hiện trong văn bản, hãy để giá trị là null.
 
     Văn bản cần phân tích:
@@ -35,7 +34,8 @@ def extract_contact_info(text: str) -> ContactInfo | None:
             temperature=0.1,  # Nhiệt độ thấp giúp mô hình trích xuất chính xác, ít sáng tạo thừa
         ),
     )
-
+    # wait 10 seconds to avoid rate limit
+    time.sleep(10)
     # response.parsed sẽ trả về trực tiếp đối tượng Pydantic (ContactInfo)
     return response.parsed
 
@@ -44,7 +44,7 @@ def extract_contact_info(text: str) -> ContactInfo | None:
     return None
 
 def normalize_with_gemini(text: str):
-    text = clean_and_normalize_text(text)
+    #text = clean_and_normalize_text(text)
     print(f"Đang phân tích văn bản...")
     result = extract_contact_info(text)
     if result:
@@ -52,7 +52,5 @@ def normalize_with_gemini(text: str):
         print(f"Email: {result.contact_email}")
     return result
 
-#sample 1
-text = "Cả nhà giúp em 1 fl với🩴💼: o9o51️⃣8️⃣2️⃣20️⃣2"
-normalize_with_gemini(text)
+normalize_with_gemini("Hành nghề Y Học Cổ Truyền từ năm 2015 [ k3936k1126 ]\nk=0")
 
