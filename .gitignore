@@ -4,4 +4,8 @@ __pycache__
 creator_detail.json
 creators.json
 service_account.json
-token.json
+token.json
+kalodata_cookies.json
+kalodata_cookies.txt
+creators_detail.json
+creators_detail_with_contact.json

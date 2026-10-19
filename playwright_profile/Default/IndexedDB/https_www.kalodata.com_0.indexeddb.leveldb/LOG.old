@@ -1,0 +1,10 @@
+2026/10/19-09:18:05.633 45c0 Creating DB C:\coding\kalodata\playwright_profile\Default\IndexedDB\https_www.kalodata.com_0.indexeddb.leveldb since it was missing.
+2026/10/19-09:18:05.682 45c0 Reusing MANIFEST C:\coding\kalodata\playwright_profile\Default\IndexedDB\https_www.kalodata.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/10/19-09:18:07.295 3a70 Level-0 table #5: started
+2026/10/19-09:18:07.338 3a70 Level-0 table #5: 1408 bytes OK
+2026/10/19-09:18:07.348 3a70 Delete type=0 #3
+2026/10/19-09:18:07.349 1da8 Manual compaction at level-0 from '\x00\x01\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x02\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/10/19-09:18:08.192 39a0 Level-0 table #7: started
+2026/10/19-09:18:08.208 39a0 Level-0 table #7: 1069 bytes OK
+2026/10/19-09:18:08.210 39a0 Delete type=0 #4
+2026/10/19-09:18:08.211 39a0 Manual compaction at level-0 from '\x00\x02\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x03\x00\x00\x00' @ 0 : 0; will stop at (end)

@@ -1,0 +1,24 @@
+2026/10/19-09:23:49.802 4b3c Reusing MANIFEST C:\coding\kalodata\playwright_profile\Default\IndexedDB\https_www.kalodata.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/10/19-09:23:49.803 4b3c Recovering log #6
+2026/10/19-09:23:49.803 4b3c Reusing old log C:\coding\kalodata\playwright_profile\Default\IndexedDB\https_www.kalodata.com_0.indexeddb.leveldb/000006.log 
+2026/10/19-09:23:51.379 4b3c Level-0 table #10: started
+2026/10/19-09:23:51.397 4b3c Level-0 table #10: 1396 bytes OK
+2026/10/19-09:23:51.400 4b3c Delete type=0 #6
+2026/10/19-09:23:51.401 4b3c Manual compaction at level-0 from '\x00\x03\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x04\x00\x00\x00' @ 0 : 0; will stop at '\x00\x03\x01\x03\x03\x00\x00\x00\x00\x00\x00\xf0?' @ 195 : 1
+2026/10/19-09:23:51.402 4b3c Compacting 1@0 + 1@1 files
+2026/10/19-09:23:51.430 4b3c Generated table #11@0: 44 keys, 869 bytes
+2026/10/19-09:23:51.430 4b3c Compacted 1@0 + 1@1 files => 869 bytes
+2026/10/19-09:23:51.432 4b3c compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/10/19-09:23:51.432 4b3c Delete type=2 #10
+2026/10/19-09:23:51.434 4b3c Manual compaction at level-0 from '\x00\x03\x01\x03\x03\x00\x00\x00\x00\x00\x00\xf0?' @ 195 : 1 .. '\x00\x04\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/10/19-09:23:51.752 4b3c Level-0 table #13: started
+2026/10/19-09:23:51.767 4b3c Level-0 table #13: 1063 bytes OK
+2026/10/19-09:23:51.769 4b3c Delete type=2 #7
+2026/10/19-09:23:51.769 4b3c Delete type=0 #9
+2026/10/19-09:23:51.772 4b3c Manual compaction at level-0 from '\x00\x04\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x05\x00\x00\x00' @ 0 : 0; will stop at '\x00\x04\x00\x00\xc8\x04\x00d\x00a\x00t\x00a' @ 264 : 1
+2026/10/19-09:23:51.772 4b3c Compacting 1@0 + 1@1 files
+2026/10/19-09:23:51.808 4b3c Generated table #14@0: 45 keys, 891 bytes
+2026/10/19-09:23:51.808 4b3c Compacted 1@0 + 1@1 files => 891 bytes
+2026/10/19-09:23:51.809 4b3c compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/10/19-09:23:51.811 4b3c Delete type=2 #13
+2026/10/19-09:23:51.812 52ac Manual compaction at level-0 from '\x00\x04\x00\x00\xc8\x04\x00d\x00a\x00t\x00a' @ 264 : 1 .. '\x00\x05\x00\x00\x00' @ 0 : 0; will stop at (end)

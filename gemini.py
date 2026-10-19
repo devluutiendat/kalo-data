@@ -40,6 +40,9 @@ def extract_contact_info(text: str) -> ContactInfo | None:
     return response.parsed
 
   except Exception as e:
+    err_str = str(e)
+    if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+        raise  # Re-raise để caller bắt và tắt Gemini
     print(f"Lỗi khi gọi API Gemini: {e}")
     return None
 
@@ -52,5 +55,5 @@ def normalize_with_gemini(text: str):
         print(f"Email: {result.contact_email}")
     return result
 
-normalize_with_gemini("Hành nghề Y Học Cổ Truyền từ năm 2015 [ k3936k1126 ]\nk=0")
-
+if __name__ == "__main__":
+    normalize_with_gemini("Hành nghề Y Học Cổ Truyền từ năm 2015 [ k3936k1126 ]\nk=0")

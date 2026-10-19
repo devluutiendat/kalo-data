@@ -1,5 +1,6 @@
+from sheet import save_to_google_sheet
 from creators import scrape_all_creators
-from creator_detail import scrape_all_creator_details
+from crawl_kalo_detail import scrape_all as scrape_all_details, save_to_sheet as save_detail_to_sheet
 import sys
 from search import search_categories
 
@@ -65,7 +66,11 @@ def main():
     scrape_all_creators(category_ids)
 
     # --- Bước 3: Lấy chi tiết từng Creator trong creators.json ---
-    scrape_all_creator_details()
+    print("\n--- Bước 3: Đang lấy chi tiết creator (POST /creator/detail + Gemini enrichment) ---")
+    scrape_all_details()
 
+    # --- Bước 4: Đẩy dữ liệu lên Google Sheets ---
+    save_to_google_sheet(json_file="creators.json", sheet_name="creators", id_name="creator_id")
+    save_detail_to_sheet(sheet_name="creators_detail")
 if __name__ == "__main__":
     main()
